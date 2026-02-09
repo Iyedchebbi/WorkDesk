@@ -1,0 +1,109 @@
+WORKDESK - QUALITY ASSURANCE, TESTING & STRATEGIC BLUEPRINT
+==========================================================
+
+This document provides a comprehensive framework for testing, detecting bugs, and analyzing the performance of the WorkDesk application, alongside strategic recommendations for future growth.
+
+1. CORE FUNCTIONAL TESTING (CRUD OPERATIONS)
+--------------------------------------------
+A. Project Management
+   - Test: Create a new project. 
+     * Success Criteria: Credits should decrease by exactly 1.
+     * Error Check: If credits = 0, the 'insufficient_credits' modal must appear.
+   - Test: Delete a project.
+     * Success Criteria: Project is removed from Firestore. All tasks linked to this project ID should also be deleted (Cascade Delete logic).
+   - Test: Edit project details.
+     * Success Criteria: Changes reflect immediately in the UI without a page refresh.
+
+B. Client Management
+   - Test: Add a client.
+     * Success Criteria: Client appears in the dropdown menu when creating/editing projects.
+   - Test: Delete a client.
+     * Success Criteria: Ensure projects linked to the client handle the 'None' state gracefully.
+
+C. Task System
+   - Test: Toggle task status (Done/To Do).
+     * Success Criteria: Progress bar in the Projects table updates correctly.
+     * Visual Check: Task text should have a line-through style when 'Done'.
+
+D. Invoice Management
+   - Test: Edit existing invoice.
+     * Success Criteria: Verify total "Outstanding" and "Paid" balances update immediately.
+   - Test: Delete invoice.
+     * Success Criteria: Confirm total revenue calculation in Dashboard is recalculated.
+
+2. BUSINESS LOGIC VALIDATION
+----------------------------
+A. Credit System (Critical)
+   - Verify: Adding Tasks, Clients, or Invoices DOES NOT decrease credits.
+   - Verify: Editing an existing Project DOES NOT decrease credits.
+   - Verify: Only the 'Create' action in the Project modal triggers deduction.
+
+B. Subscription Handling
+   - Verify: Stripe success redirect handles the ?plan=pro or ?plan=agency parameter.
+   - Verify: Provisioning logic resets credits and updates the UI header.
+
+3. AUTHENTICATION & SECURITY
+----------------------------
+A. Session Management
+   - Test: Log out and attempt direct access to protected routes.
+   - Test: Login with invalid credentials and check for proper error UI.
+
+B. Multi-user Isolation
+   - Verify: User A cannot see User B's data via ID manipulation.
+   - Analysis: Inspect Firestore documents for correct `userId` stamps.
+
+4. UI/UX & RESPONSIVENESS
+-------------------------
+A. Dark Mode Consistency
+   - Check contrast for accessibility (WCAG 2.1).
+   - Ensure modals are usable on mobile viewports.
+
+B. Empty States
+   - Verify placeholder messages appear when data arrays are empty.
+
+5. INTEGRATION TESTING
+----------------------
+A. Cloudinary (Profile Settings)
+   - Test: Upload limit (5MB) enforcement.
+   - Test: Immediate avatar propagation across Sidebar and Settings.
+
+B. Recharts (Analytics)
+   - Verify chart responsiveness during window resizing.
+
+6. DEBUGGING & PERFORMANCE ANALYSIS
+-----------------------------------
+A. Performance Monitoring
+   - Monitor Firestore WebSocket traffic for redundant reads.
+   - Check for console errors related to security rules.
+
+B. Common Bug Detection Patterns
+   - Race Conditions: Use `sessionPromise.then` for async triggers.
+   - Memory Leaks: Clear Firestore listeners via `unsubsRef.current` on logout.
+
+7. MAINTENANCE CHECKLIST
+------------------------
+1. Verify `firebaseConfig` environment.
+2. Ensure Stripe Buy Buttons are in 'Live Mode'.
+3. Deploy Firestore Rules for security.
+4. Run Lighthouse Audit for performance/SEO.
+
+8. GAP ANALYSIS & STRATEGIC RECOMMENDATIONS
+-------------------------------------------
+Based on the current architecture of WorkDesk, the following features are "missed" but highly recommended for a professional-grade freelancer tool:
+
+A. Missed Functionalities (High Priority)
+   1. Time Tracking: Freelancers often bill by the hour. Adding a "Start Timer" button on tasks would allow for automated invoice generation based on logged time.
+   2. Project Detail View: Currently, projects are only viewed as list items. A dedicated page for each project would allow for a centralized "Workroom" containing specific tasks, files, and client chat logs.
+   3. PDF Invoice Generation: Users need to send invoices. Integrating a library like `jsPDF` or `react-pdf` to export invoice data into a professional PDF format is a major missing piece.
+   4. Deadline Notifications: Integration with the Browser Notification API to alert users when a project deadline is within 24 hours.
+
+B. Technical Recommendations
+   1. Offline Mode (PWA): Convert the app to a Progressive Web App. Freelancers often work in transit; allowing them to view tasks and clients offline via Service Workers would significantly increase utility.
+   2. Bulk Actions: As the user's project list grows, the ability to "Archive All Completed" or "Batch Delete" invoices will be necessary for maintenance.
+   3. Global State Management: Currently, data flows through `App.tsx`. As the app expands, implementing a lightweight state manager (like `Zustand` or `Context API` with specialized providers) will prevent "prop drilling."
+   4. Search & Filtering: Implement a global search bar in the Sidebar that can find projects, clients, or tasks simultaneously using a fuzzy-search algorithm.
+
+C. User Experience Enhancements
+   1. Dark/Light Mode Toggle: While the dark aesthetic is "sophisticated," accessibility dictates a light mode option for users with certain visual impairments or high-glare environments.
+   2. Onboarding Tour: A "First-Time Login" walkthrough using `react-joyride` to explain the Credit system and how to link tasks to projects.
+   3. Multi-Currency Support: Currently, budgets are hardcoded to "$". Adding a currency selector in Settings would allow for international freelance operations.
