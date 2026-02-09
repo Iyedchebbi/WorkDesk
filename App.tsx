@@ -1,22 +1,21 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 const { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } = ReactRouterDOM as any;
 const Router = HashRouter;
-import { auth, db } from './firebase';
-import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './pages/Dashboard';
-import { Projects } from './pages/Projects';
-import { Clients } from './pages/Clients';
-import { Tasks } from './pages/Tasks';
-import { Invoices } from './pages/Invoices';
-import { Settings } from './pages/Settings';
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
-import { Modal } from './components/Modal';
-import { Project, Client, Task, Invoice, UserProfile, PlanType } from './types';
-import { MOCK_USER, STRIPE_LINKS } from './constants';
+import { auth, db } from './firebase.ts';
+import { Sidebar } from './components/Sidebar.tsx';
+import { Dashboard } from './pages/Dashboard.tsx';
+import { Projects } from './pages/Projects.tsx';
+import { Clients } from './pages/Clients.tsx';
+import { Tasks } from './pages/Tasks.tsx';
+import { Invoices } from './pages/Invoices.tsx';
+import { Settings } from './pages/Settings.tsx';
+import { Home } from './pages/Home.tsx';
+import { Login } from './pages/Login.tsx';
+import { Signup } from './pages/Signup.tsx';
+import { Modal } from './components/Modal.tsx';
+import { Project, Client, Task, Invoice, UserProfile, PlanType } from './types.ts';
+import { MOCK_USER, STRIPE_LINKS } from './constants.ts';
 import { Zap, ArrowRight, AlertCircle } from 'lucide-react';
 
 const SuccessHandler: React.FC<{ onProvision: (plan: PlanType) => void }> = ({ onProvision }) => {
@@ -55,7 +54,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged(async (firebaseUser) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (firebaseUser: any) => {
       cleanupListeners();
 
       if (firebaseUser) {
@@ -87,29 +86,29 @@ const App: React.FC = () => {
           }
 
           unsubsRef.current.push(
-            profileRef.onSnapshot((doc) => {
+            profileRef.onSnapshot((doc: any) => {
               if (doc.exists) setUser(doc.data() as UserProfile);
             })
           );
 
           unsubsRef.current.push(
             db.collection('projects').where('userId', '==', firebaseUser.uid)
-              .onSnapshot((s) => setProjects(s.docs.map(d => ({ id: d.id, ...d.data() } as Project))))
+              .onSnapshot((s: any) => setProjects(s.docs.map((d: any) => ({ id: d.id, ...d.data() } as Project))))
           );
 
           unsubsRef.current.push(
             db.collection('clients').where('userId', '==', firebaseUser.uid)
-              .onSnapshot((s) => setClients(s.docs.map(d => ({ id: d.id, ...d.data() } as Client))))
+              .onSnapshot((s: any) => setClients(s.docs.map((d: any) => ({ id: d.id, ...d.data() } as Client))))
           );
 
           unsubsRef.current.push(
             db.collection('tasks').where('userId', '==', firebaseUser.uid)
-              .onSnapshot((s) => setTasks(s.docs.map(d => ({ id: d.id, ...d.data() } as Task))))
+              .onSnapshot((s: any) => setTasks(s.docs.map((d: any) => ({ id: d.id, ...d.data() } as Task))))
           );
 
           unsubsRef.current.push(
             db.collection('invoices').where('userId', '==', firebaseUser.uid)
-              .onSnapshot((s) => setInvoices(s.docs.map(d => ({ id: d.id, ...d.data() } as Invoice))))
+              .onSnapshot((s: any) => setInvoices(s.docs.map((d: any) => ({ id: d.id, ...d.data() } as Invoice))))
           );
 
         } catch (error) {

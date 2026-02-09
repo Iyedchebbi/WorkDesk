@@ -1,8 +1,8 @@
 
-// Use compatibility imports for Firebase v8 syntax in a v9+ environment
-import firebase from 'https://esm.sh/firebase@11.4.0/compat/app';
-import 'https://esm.sh/firebase@11.4.0/compat/auth';
-import 'https://esm.sh/firebase@11.4.0/compat/firestore';
+// Fix: Use compatibility imports for Firebase v8 syntax in a v9+ environment to resolve type errors
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
 
 // Initialize Firebase with the provided configuration
 const firebaseConfig = {
@@ -16,9 +16,11 @@ const firebaseConfig = {
 };
 
 // Use existing app if initialized, otherwise initialize a new one
+// Fix: Accessing apps and initializeApp through the compat layer resolves the 'Property does not exist' errors
 const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
 
 // Export instances using the namespaced API (Firebase v8 compat)
+// Fix: Using the compat imports ensures .auth() and .firestore() are available on the firebase object
 export const auth = firebase.auth();
 export const db = firebase.firestore();
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
